@@ -1,11 +1,17 @@
 package com.project.restfulwebservice.user;
 
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,14 +26,29 @@ public class UserController {
 
     // 전체 사용자 조회
     @GetMapping("/users")
-    public List<User> retriveAllUsers(){
+    public List<User> retrieveAllUsers(){
         return userDaoService.findAll();
+    }
+
+    @GetMapping("/users2")
+    public ResponseEntity<CollectionModel<EntityModel<User>>> retrieveUserList2() {
+        List<EntityModel<User>> result = new ArrayList<>();
+        List<User> users = userDaoService.findAll();
+
+        for (User user : users) {
+            EntityModel entityModel = EntityModel.of(user);
+            entityModel.add(linkTo(methodOn(this.getClass()).retrieveAllUsers()).withSelfRel());
+
+            result.add(entityModel);
+        }
+
+        return ResponseEntity.ok(CollectionModel.of(result, linkTo(methodOn(this.getClass()).retrieveAllUsers()).withSelfRel()));
     }
 
     // 단일 사용자 조회
     // GET /users/1 or /users/10 ->  컨트롤러에는 문자형태로 전달됨
     @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable int id){ // int로 선언하면 문자 형태 데이터 값이 int 형태로 컨버팅된다
+    public ResponseEntity<EntityModel<User>> retrieveUser(@PathVariable(value="id") int id){ // int로 선언하면 문자 형태 데이터 값이 int 형태로 컨버팅된다
         User user = userDaoService.findOne(id);
 
         if(user == null){
@@ -35,7 +56,13 @@ public class UserController {
             // 존재하지 않는 클래스 선언하여 생성가능
         }
 
-        return user;
+        // HATEOAS
+        //EntityModel<User> model = new EntityModel<>(user);
+        EntityModel entityModel = EntityModel.of(user);
+        WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+        entityModel.add(linkTo.withRel("all-users"));
+
+        return ResponseEntity.ok(entityModel);
     }
 
     // 사용자 추가
