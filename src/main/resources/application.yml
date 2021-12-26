@@ -6,6 +6,9 @@ logging:
     org.springframework: DEBUG
 
 spring:
+  jpa:
+    show-sql: true
+
   messages:
     basename: messages
 
@@ -13,6 +16,13 @@ spring:
     user:
       name: username
       password: password1
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+
+  h2:
+    console:
+      enabled: true
 
 management:
   endpoints:
