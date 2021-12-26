@@ -24,6 +24,7 @@ import java.util.Date;
 @ApiModel(description = "사용자 상세 정보를 위한 도메인 객체")
 @Entity
 public class User {
+
     @Id
     @GeneratedValue
     private Integer id;
