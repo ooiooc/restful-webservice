@@ -65,4 +65,17 @@ public class UserJpaController {
         return ResponseEntity.created(location).build();
     }
 
+    // post 추가
+    @GetMapping("/users/{id}/posts")
+    public List<Post> retrieveAllPostsByUser(@PathVariable int id) {
+        Optional<User> user = userRepository.findById(id);
+
+        if(!user.isPresent()) { // user가 존재한다면
+            throw new UserNotFoundException(String.format("ID[%s] not found", id));
+        }
+        return user.get().getPosts(); // 해당 user의 post를 조회
+
+    }
+    
+
 }
