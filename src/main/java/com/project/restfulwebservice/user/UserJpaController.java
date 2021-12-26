@@ -82,7 +82,7 @@ public class UserJpaController {
 
     // post 추가
     @PostMapping("/users/{id}/posts")
-    public ResponseEntity<Post> createUser(@PathVariable int id, @RequestBody Post post) {
+    public ResponseEntity<Post> createPost(@PathVariable int id, @RequestBody Post post) {
 
         // 사용자 정보 검색한 후 정보의 id 값을 post에 지정
         Optional<User> user = userRepository.findById(id);
