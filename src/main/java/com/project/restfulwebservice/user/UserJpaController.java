@@ -3,8 +3,12 @@ package com.project.restfulwebservice.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,12 +46,23 @@ public class UserJpaController {
         return userModel;
     }
 
-    // 삭제
+    // 사용자 삭제
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable int id) {
         userRepository.deleteById(id);
     }
 
+    // 사용자 추가
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        User savedUser = userRepository.save(user);
 
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedUser.getId())
+                .toUri(); // uri 데이터로 변경
+
+        return ResponseEntity.created(location).build();
+    }
 
 }
